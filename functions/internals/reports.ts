@@ -538,7 +538,7 @@ import {
 } from "slack-web-api-client/mod.ts";
 import { LaborLawComplianceValidator } from "./labor_laws.ts";
 
-interface shareReportJSONFileArgs {
+interface shareReportFileArgs {
   report: MonthlyReport;
   user: string;
   country: string | undefined;
@@ -546,6 +546,69 @@ interface shareReportJSONFileArgs {
   yyyymmdd: string;
   slackApi: SlackAPIClient;
 }
+
+function convertToCSV(objArray) {
+  var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+  var str = '';
+
+  for (var i = 0; i < array.length; i++) {
+      var line = '';
+      for (var index in array[i]) {
+          if (line != '') line += ','
+
+          line += array[i][index];
+      }
+
+      str += line + '\r\n';
+  }
+
+  return str;
+}
+
+export async function shareReportCSVFile({
+  report,
+  country,
+  language,
+  user,
+  yyyymmdd,
+  slackApi,
+}: shareReportFileArgs) {
+  const json: string = JSON.stringify(report, null, 2);
+  const csv: string = convertToCSV(json);
+  const csvBytes: Uint8Array = new TextEncoder().encode(csv);
+  const blocks: AnyMessageBlock[] = toReportResultBlocks(
+    report,
+    [],
+    country,
+    language,
+  ) as AnyMessageBlock[];
+  const filename = `${user}-${yyyymmdd.substring(0, 6)}.csv`;
+  const uploadUrl = await slackApi.files.getUploadURLExternal({
+    filename,
+    length: csvBytes.length,
+    snippet_type: "csv",
+  });
+  const { upload_url, file_id } = uploadUrl;
+  const upload = await fetch(upload_url!, {
+    method: "POST",
+    body: csvBytes,
+  });
+  if (upload.status !== 200) {
+    const error = `Failed to upload a CSV file (response: ${upload})`;
+    console.log(error);
+    return { error };
+  }
+  const completion = await slackApi.files.completeUploadExternal({
+    files: [{ "id": file_id!, "title": filename }],
+  });
+  const fileUrl = completion.files![0].permalink;
+  await slackApi.chat.postMessage({
+    channel: user,
+    text: `Here is the monthly report's CSV file: ${fileUrl}`,
+    blocks,
+  });
+}
+
 export async function shareReportJSONFile({
   report,
   country,
@@ -553,7 +616,7 @@ export async function shareReportJSONFile({
   user,
   yyyymmdd,
   slackApi,
-}: shareReportJSONFileArgs) {
+}: shareReportFileArgs) {
   const json: string = JSON.stringify(report, null, 2);
   const jsonBytes: Uint8Array = new TextEncoder().encode(json);
   const blocks: AnyMessageBlock[] = toReportResultBlocks(
