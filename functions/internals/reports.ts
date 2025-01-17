@@ -13,6 +13,7 @@ import { CountryCode, Emoji, EntryType, Label } from "./constants.ts";
 import { deserializeEntry } from "./entries.ts";
 import sgMail from "@sendgrid/mail";
 import * as fs from 'node:fs';
+import process from "node:process";
 
 if (process.env.SENDGRID_API_KEY) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
