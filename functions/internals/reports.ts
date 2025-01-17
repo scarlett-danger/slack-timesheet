@@ -11,15 +11,22 @@ import {
 import type { L, PH, TE } from "./datastore.ts";
 import { CountryCode, Emoji, EntryType, Label } from "./constants.ts";
 import { deserializeEntry } from "./entries.ts";
-import * as sgMail from "@sendgrid/mail";
 import * as fs from 'node:fs';
 import process from "node:process";
+const nodemailer = require("nodemailer");
 
-if (process.env.SENDGRID_API_KEY) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-} else {
-  throw new Error("SENDGRID_API_KEY is not defined");
-}
+const transporter = nodemailer.createTransport({
+  host: "smtp.sendgrid.net",
+  port: 587,
+  secure: false, // true for port 465, false for other ports
+  auth: {
+    user: "apikey",
+    pass: process.env.SENDGRID_API_KEY,
+  },
+});
+
+
+
 export interface ReportTimeEntry {
   type: string;
   type_label: string;
@@ -622,7 +629,7 @@ export async function shareReportCSVFile({
     files: [{ "id": file_id!, "title": filename }],
   });
   const fileUrl = completion.files![0].permalink;
-  const attachment = fs.readFileSync(fileUrl).toString("base64");
+  const attachmentPath = fs.readFileSync(fileUrl).toString("base64");
 
   // send to admin's email address with the CSV file attached
   const msg = {
@@ -633,25 +640,41 @@ export async function shareReportCSVFile({
     html: '<strong>Skull Games Task Force Admin Report</strong>',
     attachments: [
       {
-        content: attachment,
+        path: attachmentPath,
         filename: filename,
         type: "application/csv",
         disposition: "attachment"
       }
     ]
   }
-  sgMail
-    .send(msg)
-    .then(async () => {
-    await slackApi.chat.postMessage({
-    channel: user,
-    text: 'Email with CSV report successfully sent to admin.',
-    blocks,
+  await transporter.sendMail(msg, async (err) => {
+      if (err) {
+        await slackApi.chat.postMessage({
+             channel: user,
+             text: 'Email with CSV report did not sent to admin. Please contact support.',
+             blocks,
+        });
+      }
+
+      await slackApi.chat.postMessage({
+           channel: user,
+           text: 'Email with CSV report successfully sent to admin.',
+           blocks,
+      });
   });
-    })
-    .catch((error) => {
-      console.error(error)
-    })
+
+  // sgMail
+  //   .send(msg)
+  //   .then(async () => {
+  //   await slackApi.chat.postMessage({
+  //   channel: user,
+  //   text: 'Email with CSV report successfully sent to admin.',
+  //   blocks,
+  // });
+  //   })
+  //   .catch((error) => {
+  //     console.error(error)
+  //   })
   await slackApi.chat.postMessage({
     channel: user,
     text: `Here is the monthly report's CSV file: ${fileUrl}`,
