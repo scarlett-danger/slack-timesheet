@@ -11,7 +11,7 @@ import {
 import type { L, PH, TE } from "./datastore.ts";
 import { CountryCode, Emoji, EntryType, Label } from "./constants.ts";
 import { deserializeEntry } from "./entries.ts";
-import sgMail from "@sendgrid/mail";
+import * as sgMail from "@sendgrid/mail";
 import * as fs from 'node:fs';
 import process from "node:process";
 
