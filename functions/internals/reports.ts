@@ -643,7 +643,7 @@ export async function shareReportCSVFile({
       }
     ]
   }
-  await transporter.sendMail(msg, async (err) => {
+  await transporter.sendMail(msg, async (err: Error) => {
       if (err) {
         await slackApi.chat.postMessage({
              channel: user,
