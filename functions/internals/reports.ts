@@ -11,7 +11,6 @@ import {
 import type { L, PH, TE } from "./datastore.ts";
 import { CountryCode, Emoji, EntryType, Label } from "./constants.ts";
 import { deserializeEntry } from "./entries.ts";
-import * as fs from 'node:fs';
 import process from "node:process";
 import nodemailer from "nodemailer";
 
