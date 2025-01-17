@@ -629,7 +629,6 @@ export async function shareReportCSVFile({
     files: [{ "id": file_id!, "title": filename }],
   });
   const fileUrl = completion.files![0].permalink;
-  const attachmentPath = fs.readFileSync(fileUrl).toString("base64");
 
   // send to admin's email address with the CSV file attached
   const msg = {
@@ -640,10 +639,8 @@ export async function shareReportCSVFile({
     html: '<strong>Skull Games Task Force Admin Report</strong>',
     attachments: [
       {
-        path: attachmentPath,
+        path: fileUrl,
         filename: filename,
-        type: "application/csv",
-        disposition: "attachment"
       }
     ]
   }
