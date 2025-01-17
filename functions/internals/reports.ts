@@ -547,23 +547,35 @@ interface shareReportFileArgs {
   slackApi: SlackAPIClient;
 }
 
-function convertToCSV(objArray) {
-  var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
-  var str = '';
+function convertToCSV(input: object[] | string): string {
+  const array: object[] = typeof input === 'string' ? JSON.parse(input) : input;
+  let csv = '';
 
-  for (var i = 0; i < array.length; i++) {
-      var line = '';
-      for (var index in array[i]) {
-          if (line != '') line += ','
-
-          line += array[i][index];
-      }
-
-      str += line + '\r\n';
+  if (array.length === 0) {
+    return csv;
   }
 
-  return str;
+  // Add headers
+  const headers = Object.keys(array[0]);
+  csv += `${headers.join(',')}\r\n`;
+
+  // Add data
+  for (const obj of array) {
+    const row = headers.map(header => {
+      const value = obj[header as keyof typeof obj];
+      if (value == null) return '';
+      const stringValue = String(value);
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+      return stringValue;
+    });
+    csv += row.join(',') + '\r\n';
+  }
+
+  return csv;
 }
+
 
 export async function shareReportCSVFile({
   report,
