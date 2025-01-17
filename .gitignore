@@ -8,3 +8,5 @@ package
 # If you want to commit this file, you can remove the following entry:
 .slack/apps.json
 .slack/config.json
+
+.env
