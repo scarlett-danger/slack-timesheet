@@ -2,7 +2,7 @@ import { assertEquals } from "std/assert/assert_equals.ts";
 import { i18n } from "./i18n.ts";
 import { CountryCode, Label, LanguageCode } from "./constants.ts";
 import { LaborLawComplianceValidator } from "./labor_laws.ts";
-import { DailyReport } from "./reports.ts";
+import type { DailyReport } from "./reports.ts";
 
 Deno.test("LaborLawComplianceValidator: Japan", () => {
   const validator = new LaborLawComplianceValidator(CountryCode.Japan);
