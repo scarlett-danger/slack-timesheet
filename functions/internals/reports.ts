@@ -1,4 +1,4 @@
-import { SavedAttributes } from "deno-slack-data-mapper/mod.ts";
+import type { SavedAttributes } from "deno-slack-data-mapper/mod.ts";
 import { i18n } from "./i18n.ts";
 import {
   dayDuration,
@@ -8,9 +8,23 @@ import {
   toDateFormat,
   todayYYYYMMDD,
 } from "./datetime.ts";
-import { L, PH, TE } from "./datastore.ts";
+import type { L, PH, TE } from "./datastore.ts";
 import { CountryCode, Emoji, EntryType, Label } from "./constants.ts";
 import { deserializeEntry } from "./entries.ts";
+import process from "node:process";
+import nodemailer from "nodemailer";
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.sendgrid.net",
+  port: 587,
+  secure: false, // true for port 465, false for other ports
+  auth: {
+    user: "apikey",
+    pass: process.env.SENDGRID_API_KEY,
+  },
+});
+
+
 
 export interface ReportTimeEntry {
   type: string;
@@ -538,7 +552,7 @@ import {
 } from "slack-web-api-client/mod.ts";
 import { LaborLawComplianceValidator } from "./labor_laws.ts";
 
-interface shareReportJSONFileArgs {
+interface shareReportFileArgs {
   report: MonthlyReport;
   user: string;
   country: string | undefined;
@@ -546,6 +560,124 @@ interface shareReportJSONFileArgs {
   yyyymmdd: string;
   slackApi: SlackAPIClient;
 }
+
+function convertToCSV(input: object[] | string): string {
+  const array: object[] = typeof input === 'string' ? JSON.parse(input) : input;
+  let csv = '';
+
+  if (array.length === 0) {
+    return csv;
+  }
+
+  // Add headers
+  const headers = Object.keys(array[0]);
+  csv += `${headers.join(',')}\r\n`;
+
+  // Add data
+  for (const obj of array) {
+    const row = headers.map(header => {
+      const value = obj[header as keyof typeof obj];
+      if (value == null) return '';
+      const stringValue = String(value);
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+      return stringValue;
+    });
+    csv += row.join(',') + '\r\n';
+  }
+
+  return csv;
+}
+
+
+export async function shareReportCSVFile({
+  report,
+  country,
+  language,
+  user,
+  yyyymmdd,
+  slackApi,
+}: shareReportFileArgs) {
+  const json: string = JSON.stringify(report, null, 2);
+  const csv: string = convertToCSV(json);
+  const csvBytes: Uint8Array = new TextEncoder().encode(csv);
+  const blocks: AnyMessageBlock[] = toReportResultBlocks(
+    report,
+    [],
+    country,
+    language,
+  ) as AnyMessageBlock[];
+  const filename = `${user}-${yyyymmdd.substring(0, 6)}.csv`;
+  const uploadUrl = await slackApi.files.getUploadURLExternal({
+    filename,
+    length: csvBytes.length,
+    snippet_type: "csv",
+  });
+  const { upload_url, file_id } = uploadUrl;
+  const upload = await fetch(upload_url!, {
+    method: "POST",
+    body: csvBytes,
+  });
+  if (upload.status !== 200) {
+    const error = `Failed to upload a CSV file (response: ${upload})`;
+    console.log(error);
+    return { error };
+  }
+  const completion = await slackApi.files.completeUploadExternal({
+    files: [{ "id": file_id!, "title": filename }],
+  });
+  const fileUrl = completion.files![0].permalink;
+
+  // send to admin's email address with the CSV file attached
+  const msg = {
+    to: process.env.ADMIN_EMAIL, 
+    from: 'support@sofnetworkclinician.org', // Change to Skull Games Task Force SendGrid email address
+    subject: 'No-Reply: Skull Games Task Force Admin Report',
+    text: 'Skull Games Task Force Admin Report',
+    html: '<strong>Skull Games Task Force Admin Report</strong>',
+    attachments: [
+      {
+        path: fileUrl,
+        filename: filename,
+      }
+    ]
+  }
+  await transporter.sendMail(msg, async (err: Error) => {
+      if (err) {
+        await slackApi.chat.postMessage({
+             channel: user,
+             text: 'Email with CSV report did not sent to admin. Please contact support.',
+             blocks,
+        });
+      }
+
+      await slackApi.chat.postMessage({
+           channel: user,
+           text: 'Email with CSV report successfully sent to admin.',
+           blocks,
+      });
+  });
+
+  // sgMail
+  //   .send(msg)
+  //   .then(async () => {
+  //   await slackApi.chat.postMessage({
+  //   channel: user,
+  //   text: 'Email with CSV report successfully sent to admin.',
+  //   blocks,
+  // });
+  //   })
+  //   .catch((error) => {
+  //     console.error(error)
+  //   })
+  await slackApi.chat.postMessage({
+    channel: user,
+    text: `Here is the monthly report's CSV file: ${fileUrl}`,
+    blocks,
+  });
+}
+
 export async function shareReportJSONFile({
   report,
   country,
@@ -553,7 +685,7 @@ export async function shareReportJSONFile({
   user,
   yyyymmdd,
   slackApi,
-}: shareReportJSONFileArgs) {
+}: shareReportFileArgs) {
   const json: string = JSON.stringify(report, null, 2);
   const jsonBytes: Uint8Array = new TextEncoder().encode(json);
   const blocks: AnyMessageBlock[] = toReportResultBlocks(

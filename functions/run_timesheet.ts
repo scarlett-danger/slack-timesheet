@@ -17,7 +17,7 @@ import {
   generateReport,
   MonthlyReport,
   shareAdminReportJSONFile,
-  shareReportJSONFile,
+  shareReportCSVFile,
 } from "./internals/reports.ts";
 import { nowHHMM, toDateFormat, todayYYYYMMDD } from "./internals/datetime.ts";
 import {
@@ -1477,7 +1477,7 @@ export default SlackFunction(
           lifelogs: (await fetchMonthLifelogs({ yyyymm, ...components })),
           ...components,
         });
-        await shareReportJSONFile({ report, ...components });
+        await shareReportCSVFile({ report, ...components });
         return {};
       } catch (e) {
         const error =
