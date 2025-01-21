@@ -39,6 +39,10 @@ jobs:
         SLACK_APPS_JSON: ${{ secrets.SLACK_APPS_JSON }}
         # e.g. {"project_id":"cb89b21e-3a86-44c6-afce-************"}
         SLACK_CONFIG_JSON: ${{ secrets.SLACK_CONFIG_JSON }}
+        
+        SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+
+        ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
       run: |
         mkdir -p .slack/
         echo $SLACK_APPS_JSON > .slack/apps.json

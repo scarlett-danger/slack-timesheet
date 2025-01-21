@@ -584,7 +584,7 @@ function convertToCSV(input: object[] | string): string {
       }
       return stringValue;
     });
-    csv += row.join(',') + '\r\n';
+    csv += `${row.join(',')}\r\n`;
   }
 
   return csv;
@@ -627,7 +627,10 @@ export async function shareReportCSVFile({
   const completion = await slackApi.files.completeUploadExternal({
     files: [{ "id": file_id!, "title": filename }],
   });
-  const fileUrl = completion.files![0].permalink;
+  if (!completion || !completion.files || !completion.files[0]) {
+    throw new Error('Failed to complete file upload');
+  }
+  const fileUrl  = completion?.files[0].permalink;
 
   // send to admin's email address with the CSV file attached
   const msg = {
