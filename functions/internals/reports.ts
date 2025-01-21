@@ -625,9 +625,9 @@ export async function shareReportCSVFile({
     return { error };
   }
   const completion = await slackApi.files.completeUploadExternal({
-    files: [{ "id": file_id, "title": filename }],
+    files: [{ "id": file_id!, "title": filename }],
   });
-  const fileUrl = completion.files[0].permalink;
+  const fileUrl = completion.files[0]!.permalink;
 
   // send to admin's email address with the CSV file attached
   const msg = {
