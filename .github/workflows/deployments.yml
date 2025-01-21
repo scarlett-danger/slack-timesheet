@@ -7,6 +7,7 @@ jobs:
   build:
     # You can go with any other Linux options if you prefer
     runs-on: ubuntu-latest
+    environment: Production
     # The deployment process itself usually takes less than 1 minute
     # When your app's code base is larger in the future, you may want to adjust this duration
     timeout-minutes: 5
