@@ -24,8 +24,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-
-
 export interface ReportTimeEntry {
   type: string;
   type_label: string;
@@ -562,8 +560,8 @@ interface shareReportFileArgs {
 }
 
 function convertToCSV(input: object[] | string): string {
-  const array: object[] = typeof input === 'string' ? JSON.parse(input) : input;
-  let csv = '';
+  const array: object[] = typeof input === "string" ? JSON.parse(input) : input;
+  let csv = "";
 
   if (array.length === 0) {
     return csv;
@@ -571,25 +569,27 @@ function convertToCSV(input: object[] | string): string {
 
   // Add headers
   const headers = Object.keys(array[0]);
-  csv += `${headers.join(',')}\r\n`;
+  csv += `${headers.join(",")}\r\n`;
 
   // Add data
   for (const obj of array) {
-    const row = headers.map(header => {
+    const row = headers.map((header) => {
       const value = obj[header as keyof typeof obj];
-      if (value == null) return '';
+      if (value == null) return "";
       const stringValue = String(value);
-      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+      if (
+        stringValue.includes(",") || stringValue.includes('"') ||
+        stringValue.includes("\n")
+      ) {
         return `"${stringValue.replace(/"/g, '""')}"`;
       }
       return stringValue;
     });
-    csv += `${row.join(',')}\r\n`;
+    csv += `${row.join(",")}\r\n`;
   }
 
   return csv;
 }
-
 
 export async function shareReportCSVFile({
   report,
@@ -628,38 +628,39 @@ export async function shareReportCSVFile({
     files: [{ "id": file_id!, "title": filename }],
   });
   if (!completion || !completion.files || !completion.files[0]) {
-    throw new Error('Failed to complete file upload');
+    throw new Error("Failed to complete file upload");
   }
-  const fileUrl  = completion?.files[0].permalink;
+  const fileUrl = completion?.files[0].permalink;
 
   // send to admin's email address with the CSV file attached
   const msg = {
-    to: process.env.ADMIN_EMAIL, 
-    from: 'support@sofnetworkclinician.org', // Change to Skull Games Task Force SendGrid email address
-    subject: 'No-Reply: Skull Games Task Force Admin Report',
-    text: 'Skull Games Task Force Admin Report',
-    html: '<strong>Skull Games Task Force Admin Report</strong>',
+    to: process.env.ADMIN_EMAIL,
+    from: "support@sofnetworkclinician.org", // Change to Skull Games Task Force SendGrid email address
+    subject: "No-Reply: Skull Games Task Force Admin Report",
+    text: "Skull Games Task Force Admin Report",
+    html: "<strong>Skull Games Task Force Admin Report</strong>",
     attachments: [
       {
         path: fileUrl,
         filename: filename,
-      }
-    ]
-  }
+      },
+    ],
+  };
   await transporter.sendMail(msg, async (err: Error) => {
-      if (err) {
-        await slackApi.chat.postMessage({
-             channel: user,
-             text: 'Email with CSV report did not sent to admin. Please contact support.',
-             blocks,
-        });
-      }
-
+    if (err) {
       await slackApi.chat.postMessage({
-           channel: user,
-           text: 'Email with CSV report successfully sent to admin.',
-           blocks,
+        channel: user,
+        text:
+          "Email with CSV report did not sent to admin. Please contact support.",
+        blocks,
       });
+    }
+
+    await slackApi.chat.postMessage({
+      channel: user,
+      text: "Email with CSV report successfully sent to admin.",
+      blocks,
+    });
   });
 
   // sgMail
