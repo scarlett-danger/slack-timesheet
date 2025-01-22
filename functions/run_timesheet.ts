@@ -1,7 +1,7 @@
 import { DefineFunction, Schema, SlackFunction } from "deno-slack-sdk/mod.ts";
-import type { 
-  Attributes, 
-  SavedAttributes, 
+import type {
+  Attributes,
+  SavedAttributes,
 } from "deno-slack-data-mapper/mod.ts";
 import type { ModalView } from "slack-web-api-client/mod.ts";
 
