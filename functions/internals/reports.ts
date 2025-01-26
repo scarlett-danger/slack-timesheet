@@ -1,4 +1,4 @@
-import type { SavedAttributes } from "deno-slack-data-mapper/mod.ts";
+import { SavedAttributes } from "deno-slack-data-mapper/mod.ts";
 import { i18n } from "./i18n.ts";
 import {
   dayDuration,
@@ -8,7 +8,7 @@ import {
   toDateFormat,
   todayYYYYMMDD,
 } from "./datetime.ts";
-import type { L, PH, TE } from "./datastore.ts";
+import { L, PH, TE } from "./datastore.ts";
 import { CountryCode, Emoji, EntryType, Label } from "./constants.ts";
 import { deserializeEntry } from "./entries.ts";
 import process from "node:process";
