@@ -12,7 +12,13 @@ import Projects from "./datastores/projects.ts";
 import OrganizationPolicies from "./datastores/organization_policies.ts";
 import Lifelogs from "./datastores/lifelogs.ts";
 import ActiveViews from "./datastores/active_views.ts";
+import * as Sentry from "sentry";
 
+Sentry.init({
+  environment: "production",
+  dsn: "https://510c0a7e29487742dc2ce984d5653f1e@o4508686258274304.ingest.us.sentry.io/4508686350155776",
+  tracesSampleRate: 1.0,
+});
 export default Manifest({
   name: "slack-timesheet",
   description: "Timesheet, an app designed to manage work hours in Slack",
