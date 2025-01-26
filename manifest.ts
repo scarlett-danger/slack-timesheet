@@ -16,7 +16,7 @@ import * as Sentry from "sentry";
 
 Sentry.init({
   environment: "production",
-  dsn: "https://510c0a7e29487742dc2ce984d5653f1e@o4508686258274304.ingest.us.sentry.io/4508686350155776",
+  dsn: "https://70b02caebabc6070ba1153a0e9aea439@o4508686258274304.ingest.us.sentry.io/4508711728513024",
   tracesSampleRate: 1.0,
 });
 export default Manifest({
