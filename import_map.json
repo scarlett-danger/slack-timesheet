@@ -5,6 +5,7 @@
     "deno-slack-api/": "https://deno.land/x/deno_slack_api@2.8.0/",
     "deno-slack-data-mapper/": "https://deno.land/x/deno_slack_data_mapper@2.6.0/",
     "slack-web-api-client/": "https://deno.land/x/slack_web_api_client@0.11.0/",
-    "nodemailer": "npm:nodemailer@6.9.16"
+    "nodemailer": "npm:nodemailer@6.9.16", 
+    "sentry": "npm:@sentry/deno"
   }
 }
