@@ -1,9 +1,9 @@
 import { DefineFunction, Schema, SlackFunction } from "deno-slack-sdk/mod.ts";
-import type {
+import {
   Attributes,
   SavedAttributes,
 } from "deno-slack-data-mapper/mod.ts";
-import type { ModalView } from "slack-web-api-client/mod.ts";
+import { ModalView } from "slack-web-api-client/mod.ts";
 
 import { injectComponents } from "./internals/components.ts";
 import {
@@ -18,7 +18,7 @@ import {
 } from "./internals/constants.ts";
 import {
   generateReport,
-  type MonthlyReport,
+  MonthlyReport,
   shareAdminReportJSONFile,
   shareReportCSVFile,
 } from "./internals/reports.ts";
@@ -65,8 +65,8 @@ import {
   fetchTimeEntry,
   hasActiveProjects,
   isLifelogRecord,
-  type L,
-  type P,
+  L,
+  P,
   removeClosingModalFromActiveViews,
   saveLastActiveView,
   saveLifelog,
@@ -74,16 +74,16 @@ import {
   saveTimeEntry,
   saveUserSettings,
   setupCountriesAndHolidaysIfNecessary,
-  type TE,
-  type US,
+  TE,
+  US,
 } from "./internals/datastore.ts";
 import {
   deserializeEntry,
-  type Lifelog,
+  Lifelog,
   serializeEntry,
   toComparable,
 } from "./internals/entries.ts";
-import type {
+import  {
   AddEntryPrivateMetadata,
   AddLifelogPrivateMetadata,
   EditEntryPrivateMetadata,
