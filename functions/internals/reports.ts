@@ -13,7 +13,7 @@ import { CountryCode, Emoji, EntryType, Label } from "./constants.ts";
 import { deserializeEntry } from "./entries.ts";
 import process from "node:process";
 import nodemailer from "nodemailer";
-
+ 
 const transporter = nodemailer.createTransport({
   host: "smtp.sendgrid.net",
   port: 587,
