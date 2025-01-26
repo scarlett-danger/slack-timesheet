@@ -1,8 +1,5 @@
 import { DefineFunction, Schema, SlackFunction } from "deno-slack-sdk/mod.ts";
-import {
-  Attributes,
-  SavedAttributes,
-} from "deno-slack-data-mapper/mod.ts";
+import { Attributes, SavedAttributes } from "deno-slack-data-mapper/mod.ts";
 import { ModalView } from "slack-web-api-client/mod.ts";
 
 import { injectComponents } from "./internals/components.ts";
@@ -83,7 +80,7 @@ import {
   serializeEntry,
   toComparable,
 } from "./internals/entries.ts";
-import  {
+import {
   AddEntryPrivateMetadata,
   AddLifelogPrivateMetadata,
   EditEntryPrivateMetadata,
