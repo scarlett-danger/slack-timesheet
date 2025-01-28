@@ -633,19 +633,19 @@ export async function shareReportCSVFile({
   const fileUrl = completion?.files[0].permalink;
 
   // send to admin's email address with the CSV file attached
-  const msg = {
-    to: process.env.ADMIN_EMAIL,
-    from: "support@sofnetworkclinician.org", // Change to Skull Games Task Force SendGrid email address
-    subject: "No-Reply: Skull Games Task Force Admin Report",
-    text: "Skull Games Task Force Admin Report",
-    html: "<strong>Skull Games Task Force Admin Report</strong>",
-    attachments: [
-      {
-        path: fileUrl,
-        filename: filename,
-      },
-    ],
-  };
+  // const msg = {
+  //   to: process.env.ADMIN_EMAIL,
+  //   from: "support@sofnetworkclinician.org", // Change to Skull Games Task Force SendGrid email address
+  //   subject: "No-Reply: Skull Games Task Force Admin Report",
+  //   text: "Skull Games Task Force Admin Report",
+  //   html: "<strong>Skull Games Task Force Admin Report</strong>",
+  //   attachments: [
+  //     {
+  //       path: fileUrl,
+  //       filename: filename,
+  //     },
+  //   ],
+  // };
   // await transporter.sendMail(msg, async (err: Error) => {
   //   if (err) {
   //     await slackApi.chat.postMessage({
