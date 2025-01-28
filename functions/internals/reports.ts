@@ -11,18 +11,18 @@ import {
 import { L, PH, TE } from "./datastore.ts";
 import { CountryCode, Emoji, EntryType, Label } from "./constants.ts";
 import { deserializeEntry } from "./entries.ts";
-import process from "node:process";
-import nodemailer from "nodemailer";
+// import process from "node:process";
+//import nodemailer from "nodemailer";
  
-const transporter = nodemailer.createTransport({
-  host: "smtp.sendgrid.net",
-  port: 587,
-  secure: false, // true for port 465, false for other ports
-  auth: {
-    user: "apikey",
-    pass: process.env.SENDGRID_API_KEY,
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   host: "smtp.sendgrid.net",
+//   port: 587,
+//   secure: false, // true for port 465, false for other ports
+//   auth: {
+//     user: "apikey",
+//     pass: process.env.SENDGRID_API_KEY,
+//   },
+// });
 
 export interface ReportTimeEntry {
   type: string;
@@ -633,35 +633,35 @@ export async function shareReportCSVFile({
   const fileUrl = completion?.files[0].permalink;
 
   // send to admin's email address with the CSV file attached
-  const msg = {
-    to: process.env.ADMIN_EMAIL,
-    from: "support@sofnetworkclinician.org", // Change to Skull Games Task Force SendGrid email address
-    subject: "No-Reply: Skull Games Task Force Admin Report",
-    text: "Skull Games Task Force Admin Report",
-    html: "<strong>Skull Games Task Force Admin Report</strong>",
-    attachments: [
-      {
-        path: fileUrl,
-        filename: filename,
-      },
-    ],
-  };
-  await transporter.sendMail(msg, async (err: Error) => {
-    if (err) {
-      await slackApi.chat.postMessage({
-        channel: user,
-        text:
-          "Email with CSV report did not sent to admin. Please contact support.",
-        blocks,
-      });
-    }
+  // const msg = {
+  //   to: process.env.ADMIN_EMAIL,
+  //   from: "support@sofnetworkclinician.org", // Change to Skull Games Task Force SendGrid email address
+  //   subject: "No-Reply: Skull Games Task Force Admin Report",
+  //   text: "Skull Games Task Force Admin Report",
+  //   html: "<strong>Skull Games Task Force Admin Report</strong>",
+  //   attachments: [
+  //     {
+  //       path: fileUrl,
+  //       filename: filename,
+  //     },
+  //   ],
+  // };
+  // await transporter.sendMail(msg, async (err: Error) => {
+  //   if (err) {
+  //     await slackApi.chat.postMessage({
+  //       channel: user,
+  //       text:
+  //         "Email with CSV report did not sent to admin. Please contact support.",
+  //       blocks,
+  //     });
+  //   }
 
-    await slackApi.chat.postMessage({
-      channel: user,
-      text: "Email with CSV report successfully sent to admin.",
-      blocks,
-    });
-  });
+  //   await slackApi.chat.postMessage({
+  //     channel: user,
+  //     text: "Email with CSV report successfully sent to admin.",
+  //     blocks,
+  //   });
+  // });
 
   // sgMail
   //   .send(msg)
